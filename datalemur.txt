@@ -1,0 +1,20 @@
+https://datalemur.com/questions/sql-third-transaction
+
+select t.user_id , t.spend, t.transaction_date
+from
+(SELECT * , row_number() over
+(partition by user_id ORDER BY transaction_date) as row_num
+FROM transactions)as t
+where row_num = 3;
+--------------------------------------------------------------------------------------------------------
+https://datalemur.com/questions/second-day-confirmation
+
+select t2.user_id from
+(select t1.*, 
+(date_part('day',t1.action_date) - date_part('day',t1.signup_date)) as no_of_days
+from
+(select t.*, e.user_id, e.signup_date from emails e
+inner join texts t
+on e.email_id = t.email_id) as t1
+where t1.signup_action = 'Confirmed') as t2
+where t2.no_of_days = 1;
